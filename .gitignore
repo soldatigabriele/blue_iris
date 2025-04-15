@@ -1,3 +1,4 @@
+.env
 !.gitignore
 !convert_to_git.py
 !script_debug.bat
