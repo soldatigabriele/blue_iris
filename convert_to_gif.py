@@ -57,7 +57,7 @@ def ffmpeg_convert(input_path, output_path):
                 "ffmpeg",
                 "-y",
                 "-i", input_path,
-                "-vf", "fps=10,scale=480:-1:flags=lanczos",
+                "-vf", "setpts=0.5*PTS,fps=15,scale=480:-1:flags=lanczos",
                 output_path
             ],
             capture_output=True,
