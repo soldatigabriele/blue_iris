@@ -5,7 +5,8 @@ import requests
 from datetime import datetime
 from dotenv import load_dotenv
 
-WATCH_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD"
+AVI_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD"
+JPG_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD_jpgs"
 LOGS_FOLDER = r"C:\BlueIris\Scripts\logs"
 os.makedirs(LOGS_FOLDER, exist_ok=True)
 
@@ -20,11 +21,10 @@ load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-
 def log(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
-    with open(LOG_FILE, "a") as f:
-        f.write(f"[{timestamp}] {msg}\n")
+    # with open(LOG_FILE, "a") as f:
+    #     f.write(f"[{timestamp}] {msg}\n")
     print(f"[{timestamp}] {msg}")
 
 
@@ -87,10 +87,45 @@ def upload_to_telegram(file_path):
         return False
 
 
-def process_next_unprocessed_file():
+def process_jpeg_images():
+    log("--- JPEG processing started ---")
+    processed = load_processed()
+    jpeg_files = sorted(
+        f for f in os.listdir(JPG_FOLDER)
+        if f.lower().endswith((".jpg", ".jpeg"))
+    )
+
+    for filename in jpeg_files:
+        if filename in processed:
+            continue
+
+        jpeg_path = os.path.join(JPG_FOLDER, filename)
+        log(f"Processing JPEG: {filename}")
+        mark_processed(filename)
+
+        try:
+            with open(jpeg_path, "rb") as img:
+                response = requests.post(
+                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto",
+                    data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True},
+                    files={"photo": img}
+                )
+
+            if response.status_code == 200:
+                log(f"JPEG uploaded to Telegram: {filename}")
+                os.remove(jpeg_path)
+                log(f"Deleted JPEG: {jpeg_path}")
+            else:
+                log(f"Failed to upload JPEG: {response.status_code} {response.text}")
+        except Exception as e:
+            log(f"Exception while processing JPEG {filename}: {e}")
+
+    log("--- JPEG processing finished ---")
+
+def process_avi_videos():
     log("--- Script run started ---")
     processed = load_processed()
-    avi_files = sorted(f for f in os.listdir(WATCH_FOLDER) if f.lower().endswith(".avi"))
+    avi_files = sorted(f for f in os.listdir(AVI_FOLDER) if f.lower().endswith(".avi"))
 
     for filename in avi_files:
         if filename in processed:
@@ -100,13 +135,13 @@ def process_next_unprocessed_file():
         if not timestamp:
             log(f"Invalid filename format: {filename}, skipping.")
             mark_processed(filename)
-            return
+            continue  # Skip and move to the next file
 
-        avi_path = os.path.join(WATCH_FOLDER, filename)
+        avi_path = os.path.join(AVI_FOLDER, filename)
         gif_path = os.path.splitext(avi_path)[0] + ".gif"
 
         log(f"Processing new file: {filename}")
-        mark_processed(filename)  # Immediately mark as seen
+        mark_processed(filename)  # Immediately mark as seen to avoid reprocessing
 
         success = False
         for attempt in range(1, MAX_RETRIES + 1):
@@ -135,7 +170,7 @@ def process_next_unprocessed_file():
                     log(f"Failed to send failure notification: {response.status_code} {response.text}")
             except Exception as e:
                 log(f"Exception while sending failure notification: {e}")
-            return
+            continue  # Move on to the next file even if this one failed
 
         # Upload
         if upload_to_telegram(gif_path):
@@ -146,10 +181,9 @@ def process_next_unprocessed_file():
             except Exception as e:
                 log(f"Error deleting files: {e}")
 
-        break  # Only process the first unprocessed file
-
     log("--- Script run finished ---")
 
 
 if __name__ == "__main__":
-    process_next_unprocessed_file()
+    process_jpeg_images()
+    process_avi_videos()
