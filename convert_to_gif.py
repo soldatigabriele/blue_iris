@@ -6,13 +6,13 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 WATCH_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD"
-LOGS_FOLDER = os.path.join(WATCH_FOLDER, "logs")
+LOGS_FOLDER = r"C:\BlueIris\Scripts\logs"
 os.makedirs(LOGS_FOLDER, exist_ok=True)
 
 MAX_RETRIES = 20
 RETRY_DELAY = 3
 LOG_FILE = os.path.join(LOGS_FOLDER, "log.txt")
-PROCESSED_FILE = os.path.join(WATCH_FOLDER, "processed.txt")
+PROCESSED_FILE = os.path.join(LOGS_FOLDER, "processed.txt")
 
 # Load .env variables
 load_dotenv()
@@ -75,7 +75,7 @@ def upload_to_telegram(file_path):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
     try:
         with open(file_path, "rb") as doc:
-            response = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID}, files={"document": doc})
+            response = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True}, files={"document": doc})
         if response.status_code == 200:
             log(f"GIF uploaded to Telegram: {file_path}")
             return True
@@ -121,6 +121,20 @@ def process_next_unprocessed_file():
 
         if not success:
             log(f"Failed to convert {filename} after {MAX_RETRIES} attempts.")
+            
+            # Send Telegram message on failure
+            error_message = f"❌ Failed to convert video to GIF:\n{filename}"
+            try:
+                response = requests.post(
+                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                    data={"chat_id": TELEGRAM_CHAT_ID, "text": error_message, "disable_notification": False}
+                )
+                if response.status_code == 200:
+                    log("Sent failure notification to Telegram.")
+                else:
+                    log(f"Failed to send failure notification: {response.status_code} {response.text}")
+            except Exception as e:
+                log(f"Exception while sending failure notification: {e}")
             return
 
         # Upload
