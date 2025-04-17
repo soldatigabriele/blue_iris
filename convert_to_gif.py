@@ -89,19 +89,15 @@ def upload_to_telegram(file_path):
 
 def process_jpeg_images():
     log("--- JPEG processing started ---")
-    processed = load_processed()
     jpeg_files = sorted(
         f for f in os.listdir(JPG_FOLDER)
         if f.lower().endswith((".jpg", ".jpeg"))
     )
 
     for filename in jpeg_files:
-        if filename in processed:
-            continue
 
         jpeg_path = os.path.join(JPG_FOLDER, filename)
         log(f"Processing JPEG: {filename}")
-        mark_processed(filename)
 
         try:
             with open(jpeg_path, "rb") as img:
@@ -124,24 +120,19 @@ def process_jpeg_images():
 
 def process_avi_videos():
     log("--- Script run started ---")
-    processed = load_processed()
     avi_files = sorted(f for f in os.listdir(AVI_FOLDER) if f.lower().endswith(".avi"))
 
     for filename in avi_files:
-        if filename in processed:
-            continue
 
         timestamp = extract_timestamp(filename)
         if not timestamp:
             log(f"Invalid filename format: {filename}, skipping.")
-            mark_processed(filename)
             continue  # Skip and move to the next file
 
         avi_path = os.path.join(AVI_FOLDER, filename)
         gif_path = os.path.splitext(avi_path)[0] + ".gif"
 
         log(f"Processing new file: {filename}")
-        mark_processed(filename)  # Immediately mark as seen to avoid reprocessing
 
         success = False
         for attempt in range(1, MAX_RETRIES + 1):
