@@ -71,13 +71,42 @@ def ffmpeg_convert(input_path, output_path):
         return False
 
 
-def upload_to_telegram(file_path):
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
+def ffmpeg_convert(input_path, output_path):
     try:
-        with open(file_path, "rb") as doc:
-            response = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True}, files={"document": doc})
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i", input_path,
+                "-an",  # remove audio
+                "-vf", "setpts=0.5*PTS,fps=15,scale=480:-1:flags=lanczos",
+                "-c:v", "libx264",
+                "-preset", "fast",
+                "-crf", "28",
+                "-movflags", "+faststart",
+                output_path
+            ],
+            capture_output=True,
+            text=True
+        )
+        log(result.stdout)
+        log(result.stderr)
+        return result.returncode == 0
+    except Exception as e:
+        log(f"Exception while running ffmpeg: {e}")
+        return False
+
+def upload_to_telegram(file_path):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendVideo"
+    try:
+        with open(file_path, "rb") as video:
+            response = requests.post(
+                url,
+                data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True},
+                files={"video": video}
+            )
         if response.status_code == 200:
-            log(f"GIF uploaded to Telegram: {file_path}")
+            log(f"Video uploaded to Telegram: {file_path}")
             return True
         else:
             log(f"Telegram upload failed: {response.status_code} {response.text}")
@@ -85,6 +114,21 @@ def upload_to_telegram(file_path):
     except Exception as e:
         log(f"Exception during Telegram upload: {e}")
         return False
+
+# def upload_to_telegram(file_path):
+#     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
+#     try:
+#         with open(file_path, "rb") as doc:
+#             response = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True}, files={"document": doc})
+#         if response.status_code == 200:
+#             log(f"GIF uploaded to Telegram: {file_path}")
+#             return True
+#         else:
+#             log(f"Telegram upload failed: {response.status_code} {response.text}")
+#             return False
+#     except Exception as e:
+#         log(f"Exception during Telegram upload: {e}")
+#         return False
 
 
 def process_jpeg_images():
@@ -130,7 +174,9 @@ def process_avi_videos():
             continue  # Skip and move to the next file
 
         avi_path = os.path.join(AVI_FOLDER, filename)
-        gif_path = os.path.splitext(avi_path)[0] + ".gif"
+        # gif_path = os.path.splitext(avi_path)[0] + ".gif"
+        gif_path = os.path.splitext(avi_path)[0] + ".mp4"
+    
 
         log(f"Processing new file: {filename}")
 
