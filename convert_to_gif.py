@@ -1,9 +1,11 @@
 import os
 import subprocess
 import time
+import sys
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
+
 
 AVI_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD"
 JPG_FOLDER = r"C:\BlueIris\Telegram_Alerts_SSD_jpgs"
@@ -23,10 +25,11 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def log(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
-    # with open(LOG_FILE, "a") as f:
-    #     f.write(f"[{timestamp}] {msg}\n")
+    with open(LOG_FILE, "a") as f:
+        f.write(f"[{timestamp}] {msg}\n")
     print(f"[{timestamp}] {msg}")
 
+log(f"Received args: {sys.argv}")
 
 def load_processed():
     if not os.path.exists(PROCESSED_FILE):
@@ -131,7 +134,7 @@ def upload_to_telegram(file_path):
 #         return False
 
 
-def process_jpeg_images():
+def process_jpeg_images(alert_db, name):
     log("--- JPEG processing started ---")
     jpeg_files = sorted(
         f for f in os.listdir(JPG_FOLDER)
@@ -145,9 +148,17 @@ def process_jpeg_images():
 
         try:
             with open(jpeg_path, "rb") as img:
+                caption = f"[*Open Clip*](https://cctv.soldati.co.uk/ui3.htm?tab=alerts&rec={alert_db}&maximize=1) \\- {name}"
+                url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+
                 response = requests.post(
-                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto",
-                    data={"chat_id": TELEGRAM_CHAT_ID, "disable_notification": True},
+                    url,
+                    data={
+                        "chat_id": TELEGRAM_CHAT_ID,
+                        "disable_notification": True,
+                        "caption": caption,
+                        "parse_mode": "MarkdownV2"
+                    },
                     files={"photo": img}
                 )
 
@@ -221,6 +232,14 @@ def process_avi_videos():
     log("--- Script run finished ---")
 
 
+
 if __name__ == "__main__":
-    process_jpeg_images()
+    if len(sys.argv) >= 4:
+        alert_db = sys.argv[1]  # &ALERT_DB
+        name = sys.argv[2]      # &NAME
+    else:
+        alert_db = ""
+        name = ""
+
+    process_jpeg_images(alert_db, name)
     process_avi_videos()
