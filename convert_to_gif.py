@@ -25,8 +25,8 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def log(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
-    with open(LOG_FILE, "a") as f:
-        f.write(f"[{timestamp}] {msg}\n")
+    # with open(LOG_FILE, "a") as f:
+    #     f.write(f"[{timestamp}] {msg}\n")
     print(f"[{timestamp}] {msg}")
 
 log(f"Received args: {sys.argv}")
