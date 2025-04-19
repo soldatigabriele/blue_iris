@@ -71,7 +71,7 @@ In Blue Iris > Camera Settings > Alerts:
 
 Telegram caption example:
 ```
-[*Open Clip*](https://cctv.soldati.co.uk/ui3.htm?tab=alerts&rec=AlertDB123&maximize=1) \- Front Door
+[*Open Clip*](https://yourcctv.com/ui3.htm?tab=alerts&rec=AlertDB123&maximize=1) \- Front Door
 ```
 
 ---
