@@ -9,7 +9,6 @@ Automated alert system that sends JPEG snapshots and fast-playback MP4 clips fro
 - Converts `.avi` alert videos to fast MP4s using FFmpeg (2x speed).
 - Sends JPEGs and MP4s to a Telegram bot with optional captions and links.
 - Deletes media files after successful upload.
-- Logs actions and tracks processed files.
 
 ---
 
@@ -24,7 +23,7 @@ Automated alert system that sends JPEG snapshots and fast-playback MP4 clips fro
 ### 2. Folder Structure
 - `C:\BlueIris\Telegram_Alerts_SSD` → Incoming `.avi` clips
 - `C:\BlueIris\Telegram_Alerts_SSD_jpgs` → Incoming `.jpg` snapshots
-- `C:\BlueIris\Scripts\logs` → Logs and processed file tracking
+- `C:\BlueIris\Scripts\logs` → Logs
 
 ### 3. Environment Variables (.env)
 Create `.env` file in the script directory:
@@ -81,7 +80,6 @@ Telegram caption example:
 - FFmpeg must be in PATH. Test in CMD: `ffmpeg`
 - Telegram bot file size limit is 50 MB
 - MP4 is preferred over GIF due to Telegram compression
-- Logs saved in `logs/`, and processed filenames tracked to avoid reprocessing
 
 ---
 
@@ -92,9 +90,45 @@ Telegram caption example:
 | Folder setup in File Explorer    | `folders_structure.png`           |
 | Example `.env` config            | `env_example.png`                 |
 | Telegram alert message result    | `telegram_alert_demo.png`         |
-| Logs folder with processed.txt   | `logs_folder.png`                 |
 
 ---
 
 ## ✨ Done!
 This system now automates your Blue Iris alerts to Telegram smoothly with real-time clips and preview images. Enjoy peace of mind and quick access from anywhere.
+
+### Camera 1: Record tab
+![Cam1](imgs/camera_1_record.png)
+
+### Camera 2: Record tab
+![Cam1](imgs/camera_2_record.png)
+### Camera 2: Record tab - Video file format and compression
+![Cam1](imgs/camera_2_record_format.png)
+
+### Camera 2: Trigger tab
+
+Note the `Break time` section!
+
+![Cam1](imgs/camera_2_trigger.png)
+
+### Camera 2: Trigger tab - AI
+![Cam1](imgs/camera_2_trigger_ai.png)
+### Camera 2: Trigger tab - AI - night
+![Cam1](imgs/camera_2_trigger_ai_night.png)
+
+
+### Camera 2: Alerts tab
+![Cam1](imgs/camera_2_alerts.png)
+
+### Camera 2: Alerts tab - On alert...
+![Cam1](imgs/camera_2_alerts_on_alert.png)
+
+### Camera 2: Alerts tab - Action
+![Cam1](imgs/camera_2_alerts_action.png)
+
+### Generic Settings: AI tab
+![Cam1](imgs/settings_ai.png)
+
+
+
+
+
