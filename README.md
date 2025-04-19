@@ -83,19 +83,6 @@ Telegram caption example:
 
 ---
 
-## 📸 Recommended Screenshots
-| What                             | File Name Suggestion              |
-|----------------------------------|-----------------------------------|
-| Blue Iris post-trigger settings  | `bi_post_trigger_settings.png`    |
-| Folder setup in File Explorer    | `folders_structure.png`           |
-| Example `.env` config            | `env_example.png`                 |
-| Telegram alert message result    | `telegram_alert_demo.png`         |
-
----
-
-## ✨ Done!
-This system now automates your Blue Iris alerts to Telegram smoothly with real-time clips and preview images. Enjoy peace of mind and quick access from anywhere.
-
 ### Camera 1: Record tab
 ![Cam1](imgs/camera_1_record.png)
 
