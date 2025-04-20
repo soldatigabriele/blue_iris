@@ -175,7 +175,8 @@ def process_jpeg_images(alert_db, name):
 
 def process_avi_videos():
     log("--- Script run started ---")
-    avi_files = sorted(f for f in os.listdir(AVI_FOLDER) if f.lower().endswith(".avi"))
+    # avi_files = sorted(f for f in os.listdir(AVI_FOLDER) if f.lower().endswith(".avi"))
+    avi_files = sorted(f for f in os.listdir(AVI_FOLDER) if f.lower().endswith(".bvr"))
 
     for filename in avi_files:
 
